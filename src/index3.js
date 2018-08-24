@@ -21,7 +21,7 @@ const imgUrls = [
   "https://picsum.photos/200/100"
 ];
 
-let columns = 6;
+let columns = 5;
 
 // Get image width and heigth from imgUrls array
 let getImgMeta = (url, callback) => {
@@ -122,17 +122,22 @@ imgUrls.forEach((img, i) => {
   imgElement.setAttribute("class", "thumbnail");
   captionElement.setAttribute("class", "caption");
   imgElement.setAttribute("src", img);
+  imgElement.style.height = elementHeight;
 
-  captionElement.innerHTML = "Heoolllloooooooo hejlsdkjf lskjdf lksjdf";
+  captionElement.innerHTML =
+    "Heoolllloooooooo hejlsdkjf lskjdf lksjdf jdflgjsldfj glsdjf gldjfl gjdlfsgl";
 
   element.appendChild(imgHolder).appendChild(imgElement);
   element.appendChild(captionElement);
 
-  console.log(element.offsetHeight);
+  container.appendChild(element);
+
+  let captionHeight = document.querySelector(".caption").offsetHeight;
+  console.log(captionHeight);
 
   let styles = {
     width: elementWidth,
-    height: elementHeight
+    height: imgElement.offsetHeight + captionHeight
   };
 
   let elementStyle = element.style;
@@ -143,7 +148,7 @@ imgUrls.forEach((img, i) => {
   elementWidth = parseInt(element.style.width);
   elementHeight = parseInt(element.style.height);
 
-  // console.log(elementWidth, elementHeight);
+  // console.log(element.offsetHeight);
 
   if (i < columns) {
     addToColumnImgPropsAction(
@@ -170,5 +175,4 @@ imgUrls.forEach((img, i) => {
     element.style.left = left;
   }
   container.style.height = getMaxHeight(store.getColumnImgProps())[1];
-  container.appendChild(element);
 });
