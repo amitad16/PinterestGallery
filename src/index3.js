@@ -20,7 +20,7 @@ const imgUrls = [
   "https://picsum.photos/200/300",
   "https://picsum.photos/200/100"
 ];
-const showCaptions = true;
+const showCaptions = !false;
 
 const actions = { ADD: "ADD", MODIFY: "MODIFY" };
 const columns = 5;
@@ -138,15 +138,14 @@ imgUrls.forEach((img, i) => {
   container.appendChild(element);
 
   element.style.width = elementWidth;
-  element.style.height = imgElement.offsetHeight;
+  elementHeight = imgElement.offsetHeight;
 
   if (showCaptions) {
     let captionHeight = document.querySelector(".caption").offsetHeight;
-    element.style.height = imgElement.offsetHeight + captionHeight;
+    elementHeight = imgElement.offsetHeight + captionHeight;
   }
 
   elementWidth = parseInt(element.style.width);
-  elementHeight = parseInt(element.style.height);
 
   if (i < columns) {
     addToColumnImgPropsAction(
@@ -172,7 +171,6 @@ imgUrls.forEach((img, i) => {
     element.style.left = store.getColumnImgProps()[minHeightIndex].left;
   }
 
-  console.log(store.getColumnImgProps());
   container.style.height = getMaxHeight(store.getColumnImgProps())[1];
   container.style.width = columns * 200 + 32 * (columns - 1);
 });
