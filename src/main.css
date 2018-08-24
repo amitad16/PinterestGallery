@@ -9,14 +9,13 @@
   margin: 0 auto;
   background: blanchedalmond;
   display: block;
-  height: 850px;
 }
 
 .img-wrapper {
   position: absolute;
   display: block;
-  margin: 16px;
-  border-radius: 10px;
+  /* margin: 16px; */
+  border-radius: 7px;
   overflow: hidden;
   background: #fff;
   /* padding: 8px; */

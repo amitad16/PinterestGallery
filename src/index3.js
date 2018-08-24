@@ -20,8 +20,10 @@ const imgUrls = [
   "https://picsum.photos/200/300",
   "https://picsum.photos/200/100"
 ];
+const showCaptions = true;
 
-let columns = 5;
+const actions = { ADD: "ADD", MODIFY: "MODIFY" };
+const columns = 5;
 
 // Get image width and heigth from imgUrls array
 let getImgMeta = (url, callback) => {
@@ -33,7 +35,7 @@ let getImgMeta = (url, callback) => {
 };
 
 let reducer = (columnImgProps, action, ...props) => {
-  if (action === "ADD") {
+  if (action === actions.ADD) {
     return [
       ...columnImgProps,
       {
@@ -43,7 +45,7 @@ let reducer = (columnImgProps, action, ...props) => {
         left: props[0][3]
       }
     ];
-  } else if (action === "MODIFY") {
+  } else if (action === actions.MODIFY) {
     let modifiedColumnImgProps = [...columnImgProps];
 
     modifiedColumnImgProps[props[0][0]] = {
@@ -104,6 +106,13 @@ let addToColumnImgPropsAction = (width, height, top, left) => {
   store.dispatch("ADD", width, height, top, left);
 };
 
+let addCaptions = (i, element) => {
+  let captionElement = document.createElement("DIV");
+  captionElement.setAttribute("class", "caption");
+  captionElement.innerHTML = i;
+  element.appendChild(captionElement);
+};
+
 imgUrls.forEach((img, i) => {
   let elementWidth, elementHeight;
 
@@ -115,40 +124,29 @@ imgUrls.forEach((img, i) => {
   let element = document.createElement("DIV");
   let imgHolder = document.createElement("DIV");
   let imgElement = document.createElement("IMG");
-  let captionElement = document.createElement("DIV");
 
   element.setAttribute("class", "img-wrapper");
   imgHolder.setAttribute("class", "img-holder");
   imgElement.setAttribute("class", "thumbnail");
-  captionElement.setAttribute("class", "caption");
   imgElement.setAttribute("src", img);
   imgElement.style.height = elementHeight;
 
-  captionElement.innerHTML =
-    "Heoolllloooooooo hejlsdkjf lskjdf lksjdf jdflgjsldfj glsdjf gldjfl gjdlfsgl";
-
   element.appendChild(imgHolder).appendChild(imgElement);
-  element.appendChild(captionElement);
+
+  if (showCaptions) addCaptions(i, element); // Add captions to image
 
   container.appendChild(element);
 
-  let captionHeight = document.querySelector(".caption").offsetHeight;
-  console.log(captionHeight);
+  element.style.width = elementWidth;
+  element.style.height = imgElement.offsetHeight;
 
-  let styles = {
-    width: elementWidth,
-    height: imgElement.offsetHeight + captionHeight
-  };
-
-  let elementStyle = element.style;
-  for (let styleName in styles) {
-    elementStyle[styleName] = styles[styleName];
+  if (showCaptions) {
+    let captionHeight = document.querySelector(".caption").offsetHeight;
+    element.style.height = imgElement.offsetHeight + captionHeight;
   }
 
   elementWidth = parseInt(element.style.width);
   elementHeight = parseInt(element.style.height);
-
-  // console.log(element.offsetHeight);
 
   if (i < columns) {
     addToColumnImgPropsAction(
@@ -169,10 +167,12 @@ imgUrls.forEach((img, i) => {
     let newHeight = minHeight + elementHeight + 32;
 
     modifyColumnImgPropAction(minHeightIndex, newHeight, newTop);
-    let top = store.getColumnImgProps()[minHeightIndex].top;
-    let left = store.getColumnImgProps()[minHeightIndex].left;
-    element.style.top = top;
-    element.style.left = left;
+
+    element.style.top = store.getColumnImgProps()[minHeightIndex].top;
+    element.style.left = store.getColumnImgProps()[minHeightIndex].left;
   }
+
+  console.log(store.getColumnImgProps());
   container.style.height = getMaxHeight(store.getColumnImgProps())[1];
+  container.style.width = columns * 200 + 32 * (columns - 1);
 });
