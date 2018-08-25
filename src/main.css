@@ -1,9 +1,3 @@
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
 #root {
   position: relative;
   margin: 0 auto;
@@ -14,11 +8,9 @@
 .img-wrapper {
   position: absolute;
   display: block;
-  /* margin: 16px; */
   border-radius: 7px;
   overflow: hidden;
   background: #fff;
-  /* padding: 8px; */
 }
 
 img {

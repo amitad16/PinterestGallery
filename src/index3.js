@@ -1,40 +1,94 @@
 "use strict";
 
-let container = document.getElementById("root");
+const container = document.getElementById("root");
 const imgUrls = [
+  "https://picsum.photos/600/300",
+  "https://picsum.photos/1000/100",
+  "https://picsum.photos/200/300",
+  "https://picsum.photos/200/400",
+  "https://picsum.photos/200/200",
+  "https://picsum.photos/200/300",
+  "https://picsum.photos/200/100",
+  "https://picsum.photos/100/50",
   "https://picsum.photos/200/300",
   "https://picsum.photos/200/100",
   "https://picsum.photos/200/300",
   "https://picsum.photos/200/400",
   "https://picsum.photos/200/200",
   "https://picsum.photos/200/300",
-  "https://picsum.photos/200/100",
   "https://picsum.photos/200/300",
-  "https://picsum.photos/200/600",
+  "https://picsum.photos/50/50",
+  "https://picsum.photos/800/1000",
+  "https://picsum.photos/600/300",
+  "https://picsum.photos/1000/100",
+  "https://picsum.photos/200/300",
+  "https://picsum.photos/200/400",
   "https://picsum.photos/200/200",
+  "https://picsum.photos/200/300",
+  "https://picsum.photos/200/100",
+  "https://picsum.photos/100/50",
   "https://picsum.photos/200/300",
   "https://picsum.photos/200/100",
   "https://picsum.photos/200/300",
   "https://picsum.photos/200/400",
   "https://picsum.photos/200/200",
   "https://picsum.photos/200/300",
-  "https://picsum.photos/200/100"
+  "https://picsum.photos/200/300",
+  "https://picsum.photos/50/50",
+  "https://picsum.photos/800/1000",
+  "https://picsum.photos/600/300",
+  "https://picsum.photos/1000/100",
+  "https://picsum.photos/200/300",
+  "https://picsum.photos/200/400",
+  "https://picsum.photos/200/200",
+  "https://picsum.photos/200/300",
+  "https://picsum.photos/200/100",
+  "https://picsum.photos/100/50",
+  "https://picsum.photos/200/300",
+  "https://picsum.photos/200/100",
+  "https://picsum.photos/200/300",
+  "https://picsum.photos/200/400",
+  "https://picsum.photos/200/200",
+  "https://picsum.photos/200/300",
+  "https://picsum.photos/200/300",
+  "https://picsum.photos/50/50",
+  "https://picsum.photos/800/1000"
 ];
-const showCaptions = !false;
 
-const actions = { ADD: "ADD", MODIFY: "MODIFY" };
-const columns = 5;
+let windowWidth = window.innerWidth;
 
-// Get image width and heigth from imgUrls array
-let getImgMeta = (url, callback) => {
-  let img = new Image();
-  img.src = url;
-  // img.onload = () => {
-  callback(img.naturalWidth, img.naturalHeight);
-  // };
+window.addEventListener("resize", () => {
+  windowWidth = window.innerWidth;
+});
+
+const options = {
+  columnWidth: 200,
+  offsetX: 32,
+  offsetY: 32,
+  showCaptions: !true,
+  columns() {
+    return Math.floor(
+      (windowWidth + this.offsetX) / (this.columnWidth + this.offsetX)
+    );
+  }
 };
 
-let reducer = (columnImgProps, action, ...props) => {
+const actions = { ADD: "ADD", MODIFY: "MODIFY" };
+
+// Get image width and heigth from imgUrls array
+const getImgMeta = (url, callback) => {
+  let img = new Image();
+  img.src = url;
+  // Resize image according to columnWidth
+  if (img.naturalWidth !== options.columnWidth) {
+    let ratio = options.columnWidth / img.naturalWidth;
+    let height = img.naturalHeight * ratio;
+    let width = img.naturalWidth * ratio;
+    callback(width, height);
+  }
+};
+
+const reducer = (columnImgProps, action, ...props) => {
   if (action === actions.ADD) {
     return [
       ...columnImgProps,
@@ -58,11 +112,10 @@ let reducer = (columnImgProps, action, ...props) => {
   }
 };
 
-let addToColumnImgProps = reducer => {
+const addToColumnImgProps = reducer => {
   let columnImgProps = [];
 
   const getColumnImgProps = () => columnImgProps;
-
   // @param 1 -> 'ADD' or 'MODIFY'
   // @param 2 -> props = [width, height, top, left = width * columnImgProps.length]
   //  or [index, height, top]
@@ -77,7 +130,7 @@ const store = addToColumnImgProps(reducer);
 
 // @params (columnImgProps)
 // returns [index, minHeight] form columImgProps array
-let getMinHeight = columnImgProps => {
+const getMinHeight = columnImgProps => {
   let heights = [];
   for (let v of columnImgProps) {
     heights.push(v.height);
@@ -85,7 +138,7 @@ let getMinHeight = columnImgProps => {
   return [heights.indexOf(Math.min(...heights)), _.min(heights)];
 };
 
-let getMaxHeight = columnImgProps => {
+const getMaxHeight = columnImgProps => {
   let heights = [];
   for (let v of columnImgProps) {
     heights.push(v.height);
@@ -98,19 +151,35 @@ let getMaxHeight = columnImgProps => {
 // @params (prevTop from columnImgProps + minHeight from columnImgProps)
 // returns modified columnImgProps by changing the value of
 // height and top at minHeight index
-let modifyColumnImgPropAction = (index, height, top) => {
-  store.dispatch("MODIFY", index, height, top);
+const modifyColumnImgPropAction = (index, height, top) => {
+  store.dispatch(actions.MODIFY, index, height, top);
 };
 
-let addToColumnImgPropsAction = (width, height, top, left) => {
-  store.dispatch("ADD", width, height, top, left);
+const addToColumnImgPropsAction = (width, height, top, left) => {
+  store.dispatch(actions.ADD, width, height, top, left);
 };
 
-let addCaptions = (i, element) => {
-  let captionElement = document.createElement("DIV");
+const addCaptions = (i, element) => {
+  const captionElement = document.createElement("DIV");
   captionElement.setAttribute("class", "caption");
   captionElement.innerHTML = i;
   element.appendChild(captionElement);
+};
+
+const createElements = (img, elementHeight) => {
+  const element = document.createElement("DIV");
+  const imgHolder = document.createElement("DIV");
+  const imgElement = document.createElement("IMG");
+
+  element.setAttribute("class", "img-wrapper");
+  imgHolder.setAttribute("class", "img-holder");
+  imgElement.setAttribute("class", "thumbnail");
+  imgElement.setAttribute("src", img);
+  imgElement.style.height = elementHeight;
+
+  element.appendChild(imgHolder).appendChild(imgElement);
+
+  return { element, imgElement };
 };
 
 imgUrls.forEach((img, i) => {
@@ -121,38 +190,28 @@ imgUrls.forEach((img, i) => {
     elementHeight = height;
   });
 
-  let element = document.createElement("DIV");
-  let imgHolder = document.createElement("DIV");
-  let imgElement = document.createElement("IMG");
+  const { element, imgElement } = createElements(img, elementHeight);
 
-  element.setAttribute("class", "img-wrapper");
-  imgHolder.setAttribute("class", "img-holder");
-  imgElement.setAttribute("class", "thumbnail");
-  imgElement.setAttribute("src", img);
-  imgElement.style.height = elementHeight;
-
-  element.appendChild(imgHolder).appendChild(imgElement);
-
-  if (showCaptions) addCaptions(i, element); // Add captions to image
+  if (options.showCaptions) addCaptions(i, element); // Add captions to image
 
   container.appendChild(element);
 
-  element.style.width = elementWidth;
+  element.style.width = options.columnWidth;
   elementHeight = imgElement.offsetHeight;
 
-  if (showCaptions) {
+  if (options.showCaptions) {
     let captionHeight = document.querySelector(".caption").offsetHeight;
     elementHeight = imgElement.offsetHeight + captionHeight;
   }
 
   elementWidth = parseInt(element.style.width);
 
-  if (i < columns) {
+  if (i < options.columns()) {
     addToColumnImgPropsAction(
       elementWidth,
       elementHeight,
       0,
-      elementWidth * store.getColumnImgProps().length + i * 32
+      elementWidth * store.getColumnImgProps().length + i * options.offsetX
     );
 
     element.style.top = store.getColumnImgProps()[i].top;
@@ -162,8 +221,8 @@ imgUrls.forEach((img, i) => {
     let minHeightIndex = minHeightAndIndex[0];
     let minHeight = minHeightAndIndex[1];
 
-    let newTop = minHeight + 32;
-    let newHeight = minHeight + elementHeight + 32;
+    let newTop = minHeight + options.offsetY;
+    let newHeight = minHeight + elementHeight + options.offsetY;
 
     modifyColumnImgPropAction(minHeightIndex, newHeight, newTop);
 
@@ -172,5 +231,7 @@ imgUrls.forEach((img, i) => {
   }
 
   container.style.height = getMaxHeight(store.getColumnImgProps())[1];
-  container.style.width = columns * 200 + 32 * (columns - 1);
+  container.style.width =
+    options.columns() * options.columnWidth +
+    options.offsetX * (options.columns() - 1);
 });
