@@ -1,9 +1,7 @@
 "use strict";
 
-// Get parent container
 const container = document.getElementById("root");
 
-// Set image urls to be displayed
 const imgUrls = [
   "https://picsum.photos/600/300",
   "https://picsum.photos/1000/100",
@@ -28,9 +26,7 @@ const imgUrls = [
   "https://picsum.photos/800/1000"
 ];
 
-// Main function
 let vGallery = () => {
-  // Default options
   const options = {
     columnWidth: 150,
     offsetX: 16,
@@ -43,7 +39,6 @@ let vGallery = () => {
     }
   };
 
-  // Actions to be performed on columnImgProps
   const actions = { ADD: "ADD", MODIFY: "MODIFY" };
 
   // Get image width and heigth from imgUrls array
@@ -64,7 +59,6 @@ let vGallery = () => {
     img.src = url;
   };
 
-  // return new columnImgProps based on action provided
   const reducer = (columnImgProps, action, ...props) => {
     if (action === actions.ADD) {
       return [
@@ -136,8 +130,6 @@ let vGallery = () => {
     store.dispatch(actions.ADD, width, height, top, left);
   };
 
-  // Add caption element on each image
-  // if set true on [actions.caption] object
   const addCaptions = (i, element) => {
     const captionElement = document.createElement("DIV");
     captionElement.setAttribute("class", "caption");
@@ -145,7 +137,6 @@ let vGallery = () => {
     element.appendChild(captionElement);
   };
 
-  // Create DOM strcture for the gallery
   const createElements = (img, elementHeight) => {
     const element = document.createElement("DIV");
     const imgHolder = document.createElement("DIV");
@@ -163,17 +154,15 @@ let vGallery = () => {
   };
 
   // START /////////////////////////////
-  imgUrls.forEach((imgUrl, i) => {
-    let elementWidth, elementHeight, index;
+  imgUrls.forEach((img, i) => {
+    let elementWidth, elementHeight;
 
-    // Get image width and height
-    getImgMeta(imgUrl, (width, height) => {
+    getImgMeta(img, (width, height) => {
       elementWidth = width;
       elementHeight = height;
     });
 
-    // get wrapper element and imgElement
-    const { element, imgElement } = createElements(imgUrl, elementHeight);
+    const { element, imgElement } = createElements(img, elementHeight);
 
     if (options.showCaptions) addCaptions(i, element); // Add captions to image
 
@@ -182,7 +171,6 @@ let vGallery = () => {
     element.style.width = options.columnWidth;
     elementHeight = imgElement.offsetHeight;
 
-    // Add caption height to element
     if (options.showCaptions) {
       let captionHeight = document.querySelector(".caption").offsetHeight;
       elementHeight = imgElement.offsetHeight + captionHeight;
@@ -190,8 +178,6 @@ let vGallery = () => {
 
     elementWidth = parseInt(element.style.width);
 
-    // Set first row
-    // then other rows
     if (i < options.columns()) {
       addToColumnImgPropsAction(
         elementWidth,
@@ -199,25 +185,24 @@ let vGallery = () => {
         0,
         elementWidth * store.getColumnImgProps().length + i * options.offsetX
       );
-      index = i;
+
+      element.style.top = store.getColumnImgProps()[i].top;
+      element.style.left = store.getColumnImgProps()[i].left;
     } else {
       let minHeightAndIndex = getMinHeight(store.getColumnImgProps());
       let minHeightIndex = minHeightAndIndex[0];
       let minHeight = minHeightAndIndex[1];
+
       let newTop = minHeight + options.offsetY;
       let newHeight = minHeight + elementHeight + options.offsetY;
 
       modifyColumnImgPropAction(minHeightIndex, newHeight, newTop);
-      index = minHeightIndex;
+
+      element.style.top = store.getColumnImgProps()[minHeightIndex].top;
+      element.style.left = store.getColumnImgProps()[minHeightIndex].left;
     }
 
-    element.style.top = store.getColumnImgProps()[index].top;
-    element.style.left = store.getColumnImgProps()[index].left;
-
-    // Set container height to max height of any column
     container.style.height = getMaxHeight(store.getColumnImgProps())[1];
-    // Set container width according to
-    // number of cols, width of each col and gap between two cols
     container.style.width =
       options.columns() * options.columnWidth +
       options.offsetX * (options.columns() - 1);

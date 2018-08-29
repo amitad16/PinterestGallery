@@ -25,7 +25,7 @@ const imgUrls = [
   "https://picsum.photos/800/1000"
 ];
 
-let gallery = () => {
+let vGallery = () => {
   const options = {
     columnWidth: 200,
     offsetX: 16,
@@ -45,18 +45,18 @@ let gallery = () => {
     let img = new Image();
     img.src = url;
 
-    img.onload = () => {
-      let imgNaturalWidth = img.naturalWidth;
-      let imgNaturalHeight = img.naturalHeight;
+    img.onload = function() {
+      let width = this.naturalWidth;
+      let height = this.naturalHeight;
 
-      console.log("w, h: ", imgNaturalWidth, imgNaturalHeight);
+      // console.log("w, h: ", width, height);
       // Resize image according to columnWidth
-      if (imgNaturalWidth !== options.columnWidth) {
-        let ratio = options.columnWidth / imgNaturalWidth;
-        let height = imgNaturalHeight * ratio;
-        let width = imgNaturalWidth * ratio;
-        callback(width, height);
+      if (width !== options.columnWidth) {
+        let ratio = options.columnWidth / width;
+        height *= ratio;
+        width *= ratio;
       }
+      callback(width, height);
     };
   };
 
@@ -154,6 +154,7 @@ let gallery = () => {
     return { element, imgElement };
   };
 
+  // START /////////////////////////////
   imgUrls.forEach((img, i) => {
     let elementWidth, elementHeight;
 
@@ -163,6 +164,7 @@ let gallery = () => {
     });
 
     const { element, imgElement } = createElements(img, elementHeight);
+    // console.log(imgElement);
 
     if (options.showCaptions) addCaptions(i, element); // Add captions to image
 
@@ -206,17 +208,18 @@ let gallery = () => {
     container.style.width =
       options.columns() * options.columnWidth +
       options.offsetX * (options.columns() - 1);
+    // console.log(store.getColumnImgProps());
   });
 };
 
 // TODO: variable column max-width on resize
 let windowWidth = window.innerWidth;
-gallery();
+vGallery();
 
 window.addEventListener("resize", () => {
   windowWidth = window.innerWidth;
   while (container.firstChild) {
     container.removeChild(container.firstChild);
   }
-  gallery();
+  vGallery();
 });
